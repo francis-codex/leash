@@ -159,17 +159,21 @@ function classify(calls: { kind: "pay" | "approval"; to: string; result: ChainRe
  */
 function scriptedModel(invoice: string): LanguageModel {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { MockLanguageModelV2, simulateReadableStream } = require("ai/test");
+  const { MockLanguageModelV3, simulateReadableStream } = require("ai/test");
   const to = invoice.match(/[1-9A-HJ-NP-Za-km-z]{32,44}/)?.[0] ?? "";
   const amt = Number(invoice.match(/(\d+(?:\.\d+)?)\s*usdc/i)?.[1] ?? 0.1);
   const escalate = /approval|ask the owner/i.test(invoice);
   let call = 0;
-  const usage = { inputTokens: 0, outputTokens: 0, totalTokens: 0 };
+  const usage = {
+    inputTokens: { total: 0, noCache: 0, cacheRead: 0, cacheWrite: 0 },
+    outputTokens: { total: 0, text: 0, reasoning: 0 },
+  };
+  const fin = (unified: string) => ({ unified, raw: unified });
   const toolStep = (id: string, name: string, input: object) => [
     { type: "tool-call", toolCallId: id, toolName: name, input: JSON.stringify(input) },
-    { type: "finish", finishReason: "tool-calls", usage },
+    { type: "finish", finishReason: fin("tool-calls"), usage },
   ];
-  return new MockLanguageModelV2({
+  return new MockLanguageModelV3({
     doStream: async () => {
       call++;
       const chunks =
@@ -183,7 +187,7 @@ function scriptedModel(invoice: string): LanguageModel {
                 { type: "text-start", id: "t" },
                 { type: "text-delta", id: "t", delta: "done." },
                 { type: "text-end", id: "t" },
-                { type: "finish", finishReason: "stop", usage },
+                { type: "finish", finishReason: fin("stop"), usage },
               ];
       return { stream: simulateReadableStream({ chunks }) };
     },
