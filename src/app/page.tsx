@@ -31,7 +31,7 @@ export default async function Home() {
         <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-4">
           <Link
             href="/arena"
-            className="inline-flex h-12 items-center bg-ink px-6 text-[15px] font-medium text-paper transition-colors hover:bg-[#222]"
+            className="inline-flex h-12 items-center bg-ink px-6 text-[15px] font-medium text-paper transition-colors hover:bg-ink-hover"
           >
             try to make it steal
           </Link>

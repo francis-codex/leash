@@ -131,7 +131,7 @@ export function Arena({ presets, vendors }: { presets: Preset[]; vendors: Vendor
           <button
             onClick={run}
             disabled={running || !invoice.trim()}
-            className="inline-flex h-11 items-center bg-ink px-5 text-[15px] font-medium text-paper transition-colors hover:bg-[#222] disabled:cursor-not-allowed disabled:bg-mute"
+            className="inline-flex h-11 items-center bg-ink px-5 text-[15px] font-medium text-paper transition-colors hover:bg-ink-hover disabled:cursor-not-allowed disabled:bg-mute"
           >
             {running ? "agent is working…" : "send to the agent"}
           </button>

@@ -55,7 +55,7 @@ export default async function AttemptPage({ params }: { params: Promise<{ id: st
       )}
 
       <div className="mt-12">
-        <Link href="/arena" className="inline-flex h-11 items-center bg-ink px-5 text-[15px] font-medium text-paper hover:bg-[#222]">
+        <Link href="/arena" className="inline-flex h-11 items-center bg-ink px-5 text-[15px] font-medium text-paper hover:bg-ink-hover">
           try your own
         </Link>
       </div>

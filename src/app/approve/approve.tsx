@@ -123,7 +123,7 @@ function Inner({ initial, owner }: { initial: Proposal[]; owner: string }) {
               <button
                 disabled={!isOwner || busy !== null}
                 onClick={() => act(p.index, "approve")}
-                className="h-10 bg-ink px-4 text-[14px] font-medium text-paper hover:bg-[#222] disabled:bg-mute"
+                className="h-10 bg-ink px-4 text-[14px] font-medium text-paper hover:bg-ink-hover disabled:bg-mute"
               >
                 {busy === p.index ? "signing…" : "approve and pay"}
               </button>
