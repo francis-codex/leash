@@ -334,3 +334,5 @@ a custom program would have to be written, deployed and audited before anyone sh
 ---
 
 built for the mlh x solana hackathon, november 2026.
+
+mit licensed. see [LICENSE](LICENSE).
