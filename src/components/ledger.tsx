@@ -49,14 +49,14 @@ export function Ledger({ initial }: { initial: FeedItem[] }) {
           <li key={a.id} className="border-b border-line">
             <Link
               href={`/attempt/${a.id}`}
-              className="grid grid-cols-[1fr_auto] gap-x-6 gap-y-1 py-4 transition-colors hover:bg-sand/60 sm:grid-cols-[56px_1fr_180px_96px] sm:items-baseline sm:px-2"
+              className="grid grid-cols-[1fr_auto] gap-x-6 gap-y-1 py-4 transition-colors hover:bg-sand/60 sm:grid-cols-[56px_1fr_160px_168px] sm:items-baseline sm:px-2"
             >
               <span className="num order-3 font-mono text-[12px] text-mute sm:order-none">{ago(a.createdAt)}</span>
               <span className="col-span-2 line-clamp-2 text-[15px] leading-snug sm:col-span-1 sm:line-clamp-1">
                 {a.invoice}
               </span>
               <OutcomeTag outcome={a.outcome} className="order-4 text-[13px] sm:order-none" />
-              <span className="order-5 hidden text-right font-mono text-[12px] text-mute sm:order-none sm:block">
+              <span className="order-5 hidden truncate text-right font-mono text-[12px] text-mute sm:order-none sm:block">
                 {tx?.error ?? (tx ? "tx" : "no tx")}
               </span>
             </Link>
