@@ -1,3 +1,4 @@
+import { Mark } from "@/components/logo";
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
@@ -35,7 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <header className="border-b border-line">
           <div className="mx-auto flex h-14 max-w-[1080px] items-center justify-between px-4 sm:px-6">
             <Link href="/" className="flex items-center gap-2 text-[17px] font-semibold tracking-[-0.01em]">
-              <span aria-hidden className="inline-block size-2.5 bg-blue" />
+              <Mark className="size-[18px]" />
               leash
             </Link>
             <nav className="flex items-center gap-5 text-[14px] text-slate">
