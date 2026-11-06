@@ -9,13 +9,19 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^2.0.112",
+    "@ai-sdk/openai": "^2.0.140",
     "@solana/spl-token": "~0.4.15",
     "@solana/web3.js": "^1.99.0",
     "@sqds/multisig": "2.1.4",
+    "@upstash/redis": "^1.41.0",
+    "ai": "^5.0.285",
     "bs58": "^6.0.0",
     "next": "15.5.4",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "server-only": "^0.0.1",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
