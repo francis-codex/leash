@@ -1,26 +1,56 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --paper: #ffffff;
+  --ink: #0a0a0a;
+  --slate: #5b5b5b;
+  --mute: #8a8780;
+  --line: #e7e4de;
+  --sand: #f6f4ef;
+  --blue: #00aeff;
+  /* #00aeff fails contrast as text on white; links and small blue text use this */
+  --blue-ink: #0074b8;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-slate: var(--slate);
+  --color-mute: var(--mute);
+  --color-line: var(--line);
+  --color-sand: var(--sand);
+  --color-blue: var(--blue);
+  --color-blue-ink: var(--blue-ink);
+  --font-sans: var(--font-plex-sans);
+  --font-mono: var(--font-plex-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: light;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-plex-sans), system-ui, sans-serif;
+  font-feature-settings: "ss02";
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: #cdeeff;
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+a,
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
 }

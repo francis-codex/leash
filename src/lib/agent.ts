@@ -161,7 +161,7 @@ function scriptedModel(invoice: string): LanguageModel {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { MockLanguageModelV2, simulateReadableStream } = require("ai/test");
   const to = invoice.match(/[1-9A-HJ-NP-Za-km-z]{32,44}/)?.[0] ?? "";
-  const amt = Number(invoice.match(/\$?(\d+(?:\.\d+)?)\s*(?:usdc|usd|\$)?/i)?.[1] ?? 0.1);
+  const amt = Number(invoice.match(/(\d+(?:\.\d+)?)\s*usdc/i)?.[1] ?? 0.1);
   const escalate = /approval|ask the owner/i.test(invoice);
   let call = 0;
   const usage = { inputTokens: 0, outputTokens: 0, totalTokens: 0 };

@@ -34,9 +34,10 @@ async function trySend(label: string, fn: () => Promise<string>) {
     const sig = await fn();
     await connection.confirmTransaction(sig, "confirmed");
     return { ok: true, sig };
-  } catch (e: any) {
-    const logs: string[] = e?.logs ?? e?.transactionLogs ?? [];
-    return { ok: false, error: parseSquadsError(logs) ?? errName(e) ?? String(e?.message ?? e).slice(0, 600) + " LOGS:" + logs.slice(-6).join(" | "), label };
+  } catch (e: unknown) {
+    const err = e as { logs?: string[]; transactionLogs?: string[]; message?: string };
+    const logs: string[] = err?.logs ?? err?.transactionLogs ?? [];
+    return { ok: false, error: parseSquadsError(logs) ?? errName(e) ?? String(err?.message ?? e).slice(0, 600) + " LOGS:" + logs.slice(-6).join(" | "), label };
   }
 }
 
