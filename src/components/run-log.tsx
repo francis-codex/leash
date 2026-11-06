@@ -30,7 +30,7 @@ export function RunLog({ steps, running }: { steps: Step[]; running?: boolean })
       {steps.map((s, i) => {
         if (s.type === "text") {
           return (
-            <li key={i} className="py-3 text-[15px] leading-relaxed">
+            <li key={i} className="py-3 text-[15px] leading-relaxed [overflow-wrap:anywhere]">
               {s.text}
             </li>
           );
