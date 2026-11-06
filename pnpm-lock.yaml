@@ -11,9 +11,6 @@ importers:
       '@ai-sdk/anthropic':
         specifier: ^2.0.112
         version: 2.0.112(zod@3.25.76)
-      '@ai-sdk/openai':
-        specifier: ^2.0.140
-        version: 2.0.140(zod@3.25.76)
       '@solana/spl-token':
         specifier: ~0.4.15
         version: 0.4.15(@solana/web3.js@1.99.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(utf-8-validate@6.0.6)
@@ -98,12 +95,6 @@ packages:
 
   '@ai-sdk/gateway@2.0.176':
     resolution: {integrity: sha512-e2qfIXpz3THdSpBXSKz+IVVap9mNFPWYkCUQR54UIo9SyVcVZAgMdDQ79rTu8DndzJ/0TtoWSRirPQQU/+n94g==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      zod: ^3.25.76 || ^4.1.8
-
-  '@ai-sdk/openai@2.0.140':
-    resolution: {integrity: sha512-eh2yIvyk/a7Au9VVlFavy9xMPaeU6mQhO8f073D9lsQSzj1xDapKekp6hfVhNhLosoCFEtSlA+/zPd9UC4w00w==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
@@ -3732,12 +3723,6 @@ snapshots:
       '@ai-sdk/provider': 2.0.5
       '@ai-sdk/provider-utils': 3.0.44(zod@3.25.76)
       '@vercel/oidc': 3.1.0
-      zod: 3.25.76
-
-  '@ai-sdk/openai@2.0.140(zod@3.25.76)':
-    dependencies:
-      '@ai-sdk/provider': 2.0.5
-      '@ai-sdk/provider-utils': 3.0.44(zod@3.25.76)
       zod: 3.25.76
 
   '@ai-sdk/provider-utils@3.0.44(zod@3.25.76)':

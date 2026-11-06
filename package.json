@@ -11,7 +11,6 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.112",
-    "@ai-sdk/openai": "^2.0.140",
     "@solana/spl-token": "~0.4.15",
     "@solana/wallet-adapter-base": "~0.9.28",
     "@solana/wallet-adapter-react": "~0.15.40",

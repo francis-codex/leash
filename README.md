@@ -197,7 +197,7 @@ leash/
 | app | next.js 15 (app router), react 19, typescript |
 | styling | tailwind v4, ibm plex sans and mono, light and dark themes |
 | agent | ai sdk v5 `streamText` with tools, `stopWhen: stepCountIs(6)` |
-| model | anthropic (`LEASH_MODEL`, default `claude-haiku-5-5`), falls back to openai `gpt-5-mini` |
+| model | anthropic (`LEASH_MODEL`, default `claude-haiku-5-5`) |
 | chain | `@sqds/multisig` 2.1.4, `@solana/web3.js` 1.x, `@solana/spl-token` 0.4 |
 | wallet | `@solana/wallet-adapter-react` with wallet-standard autodetect (phantom, solflare, backpack) |
 | storage | upstash redis, or an in-memory store when no redis is configured |
@@ -267,7 +267,7 @@ npx tsx scripts/prove.ts
 **4. start the app.**
 
 ```bash
-echo "ANTHROPIC_API_KEY=sk-ant-..." > .env.local   # or OPENAI_API_KEY
+echo "ANTHROPIC_API_KEY=sk-ant-..." > .env.local
 pnpm dev
 ```
 
@@ -277,8 +277,7 @@ open http://localhost:3000. to try the ui without a model key, run `LEASH_MOCK_M
 
 | variable | required | what |
 |---|---|---|
-| `ANTHROPIC_API_KEY` | one model key | the agent's model |
-| `OPENAI_API_KEY` | one model key | used when there is no anthropic key |
+| `ANTHROPIC_API_KEY` | yes | the agent's model |
 | `LEASH_MODEL` | no | anthropic model id, default `claude-haiku-5-5` |
 | `LEASH_STATE` | in production | contents of `.keys/state.json` |
 | `LEASH_AGENT_KEY` | in production | agent secret key, base58 or json array |

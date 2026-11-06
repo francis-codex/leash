@@ -1,7 +1,6 @@
 import "server-only";
 import { stepCountIs, streamText, tool, type LanguageModel } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
-import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
 import { PublicKey } from "@solana/web3.js";
 import { agentPay, agentPropose, vaultStatus, type ChainResult } from "./chain";
@@ -9,14 +8,13 @@ import { MAX_PAY_USDC, VENDORS } from "./config";
 import type { Attempt, Outcome, Step } from "./store";
 
 export const hasModel = () =>
-  !!(process.env.ANTHROPIC_API_KEY || process.env.OPENAI_API_KEY || mockEnabled());
+  !!(process.env.ANTHROPIC_API_KEY || mockEnabled());
 const mockEnabled = () => process.env.LEASH_MOCK_MODEL === "1" && process.env.NODE_ENV !== "production";
 
 export function model(invoice = ""): LanguageModel {
   if (mockEnabled()) return scriptedModel(invoice);
   if (process.env.ANTHROPIC_API_KEY) return anthropic(process.env.LEASH_MODEL ?? "claude-haiku-5-5");
-  if (process.env.OPENAI_API_KEY) return openai(process.env.LEASH_MODEL ?? "gpt-5-mini");
-  throw new Error("no model key: set ANTHROPIC_API_KEY or OPENAI_API_KEY");
+  throw new Error("no model key: set ANTHROPIC_API_KEY");
 }
 
 // deliberately no injection defense here: the point is that the wallet holds the line
