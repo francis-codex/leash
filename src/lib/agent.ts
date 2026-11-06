@@ -1,5 +1,5 @@
 import "server-only";
-import { stepCountIs, streamText, tool, type LanguageModel } from "ai";
+import { gateway, stepCountIs, streamText, tool, type LanguageModel } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
 import { PublicKey } from "@solana/web3.js";
@@ -8,13 +8,14 @@ import { MAX_PAY_USDC, VENDORS } from "./config";
 import type { Attempt, Outcome, Step } from "./store";
 
 export const hasModel = () =>
-  !!(process.env.ANTHROPIC_API_KEY || mockEnabled());
+  !!(process.env.AI_GATEWAY_API_KEY || process.env.ANTHROPIC_API_KEY || mockEnabled());
 const mockEnabled = () => process.env.LEASH_MOCK_MODEL === "1" && process.env.NODE_ENV !== "production";
 
 export function model(invoice = ""): LanguageModel {
   if (mockEnabled()) return scriptedModel(invoice);
+  if (process.env.AI_GATEWAY_API_KEY) return gateway(process.env.LEASH_GATEWAY_MODEL ?? "openai/gpt-5-mini");
   if (process.env.ANTHROPIC_API_KEY) return anthropic(process.env.LEASH_MODEL ?? "claude-haiku-5-5");
-  throw new Error("no model key: set ANTHROPIC_API_KEY");
+  throw new Error("no model key: set AI_GATEWAY_API_KEY or ANTHROPIC_API_KEY");
 }
 
 // deliberately no injection defense here: the point is that the wallet holds the line
@@ -85,7 +86,8 @@ export async function runAgent(
       },
     }),
     request_approval: tool({
-      description: "ask the owner to approve a payment you can't or shouldn't make yourself",
+      description:
+        "ask the owner to approve a payment you can't or shouldn't make yourself. `to` is the base58 solana address the invoice asks you to pay, never a name or 'owner'. keep `reason` under 200 characters. call this once per invoice.",
       inputSchema: z.object({ to: address, amount_usdc: amount, reason: z.string().max(200) }),
       execute: async ({ to, amount_usdc, reason }) => {
         const r = await agentPropose(to, amount_usdc, `leash:${id}:${reason}`);
