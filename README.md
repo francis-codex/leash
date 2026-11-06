@@ -128,7 +128,7 @@ all accounts are on solana devnet. open any of them and read them yourself.
 | vault (holds the usdc) | [`2oZ9KjSCn6Pms5TkaFhGmfpvvwqeBkPhBs18XFnLPxFT`](https://solscan.io/account/2oZ9KjSCn6Pms5TkaFhGmfpvvwqeBkPhBs18XFnLPxFT?cluster=devnet) |
 | spending limit | [`3PJGkDTyiLBhLLW4dc58xzgPYR4dKa8pCt9DtCVm8pdX`](https://solscan.io/account/3PJGkDTyiLBhLLW4dc58xzgPYR4dKa8pCt9DtCVm8pdX?cluster=devnet) |
 | agent key | [`5BusmQ7TwB3VAnEXdzn2qgwvR2jvkfRsJExKez5no8su`](https://solscan.io/account/5BusmQ7TwB3VAnEXdzn2qgwvR2jvkfRsJExKez5no8su?cluster=devnet) |
-| owner key | [`BUv8whHzDgs2DfUkrVDiuenHC5mLWSm88uGvUGDPc3q3`](https://solscan.io/account/BUv8whHzDgs2DfUkrVDiuenHC5mLWSm88uGvUGDPc3q3?cluster=devnet) |
+| owner key (phantom) | [`8zKu1DXSRHSaTMZVfG7FoCbqipJoYEyXxGxHYZfTEw4h`](https://solscan.io/account/8zKu1DXSRHSaTMZVfG7FoCbqipJoYEyXxGxHYZfTEw4h?cluster=devnet) |
 | test usdc mint (6 decimals) | [`F4qSL8msgUyUfjDtqv28HsQ22zat5d1UjjZNFenEH9W7`](https://solscan.io/account/F4qSL8msgUyUfjDtqv28HsQ22zat5d1UjjZNFenEH9W7?cluster=devnet) |
 
 ### the allowlist
@@ -147,6 +147,7 @@ the arena's example invoices try to pay a decoy address, [`3frZxMsBfCwHPuszTN66M
 |---|---|
 | create the multisig | [`5Ap45Akb…3nbPY7Qvn`](https://solscan.io/tx/5Ap45AkBkto7ahfuBLsGK3vzes53z39m1W4RjDDJsEuFk7ikksFUG9oEuSJ2SWynfpziouMcPoGG3ZL3nbPY7Qvn?cluster=devnet) |
 | add the spending limit | [`3jvDXNvZ…FHAQDYGas`](https://solscan.io/tx/3jvDXNvZGDD18pe2BhuTaELNmnXANKibMNmL4m3MetQ4DULaNodkiTtpmaZc33e1ab8qr6HKDtYgXcDFHAQDYGas?cluster=devnet) |
+| hand the vault to the owner's phantom | [`5XvKAqke…FoHKgGS`](https://solscan.io/tx/5XvKAqkeC9a5Gn1d2mFwxGdNiXsfC62nqiKFa3szFXwuNYSEemtpyG7GgzbVrVd8VBJLAZyH1mfFkYrDKFoHKgGS?cluster=devnet) |
 
 ### the proof run
 
@@ -172,6 +173,7 @@ leash/
 │   ├── common.ts            connection, keys, state, simulateThenSend, squads error names
 │   ├── setup.ts             creates mint, multisig, vault atas, funds the vault, adds the spending limit
 │   ├── prove.ts             runs the proof cases above; `prove.ts escalate` runs the proposal case alone
+│   ├── set-owner.ts         hands the vault to a new owner wallet in one transaction
 │   └── inspect.ts           prints the multisig's transaction index and which proposals exist
 ├── src/lib/                 server-only
 │   ├── config.ts            loads state + keys from env or .keys/, vendors, explorer links
@@ -314,7 +316,7 @@ what it doesn't protect against, honestly:
 - **a vendor that is itself malicious.** if an allowlisted vendor's key is compromised, the agent can still pay it up to the cap. the allowlist is only as good as the vendors on it.
 - **draining the cap on real vendors.** an attacker can make the agent pay allowlisted vendors until the daily cap is used up. the money goes to the right people, but the budget is spent.
 - **proposal spam.** anyone can make the agent create proposals. they move nothing, but they fill the owner's queue and cost the fees wallet a little rent. rate limits keep this small.
-- **the owner key.** on devnet the owner is a local keypair. on mainnet it should be a hardware or mobile wallet, or a second multisig.
+- **the owner key.** on devnet the owner is a phantom wallet; the proof run used a local keypair before the handover. on mainnet it should be a hardware or mobile wallet, or a second multisig.
 - **this is devnet with test usdc.** the mint is ours, so the money isn't real yet.
 
 ## why no custom program
