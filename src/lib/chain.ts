@@ -26,6 +26,7 @@ const CODES: Record<number, string> = {
 };
 
 const DETAIL: Record<string, string> = {
+  ProposalNotCreated: "the payment was prepared but the request to the owner did not go out. asking again for the same payee and amount finishes it instead of starting a second one",
   InvalidDestination: "the vault refused: this address is not on the owner's allowlist",
   SpendingLimitExceeded: "the vault refused: this would go over today's spending limit",
   Unauthorized: "the vault refused: the agent key is not allowed to do this",
@@ -105,12 +106,18 @@ export async function agentPropose(
   }
   const fees = feesKey();
   const agent = agentKey();
+  const lamports = Math.round(usdc * 1e6);
+  // resume first: a transaction this agent created for the same payee and amount that never
+  // got its proposal (a dropped or failed proposalCreate) is finished, not duplicated
+  const stranded = await strandedTransaction(destAta, lamports);
+  if (stranded !== null) {
+    const resumed = await openProposal(stranded);
+    return { ...resumed, proposal: stranded.toString() };
+  }
   const ms = await multisig.accounts.Multisig.fromAccountAddress(connection, multisigPda());
   const transactionIndex = BigInt(ms.transactionIndex.toString()) + 1n;
   const [vault] = multisig.getVaultPda({ multisigPda: multisigPda(), index: 0 });
-  const ix = createTransferCheckedInstruction(
-    addr("vaultAta"), mint(), destAta, vault, Math.round(usdc * 1e6), 6,
-  );
+  const ix = createTransferCheckedInstruction(addr("vaultAta"), mint(), destAta, vault, lamports, 6);
   const { blockhash } = await connection.getLatestBlockhash();
   const createTx = multisig.transactions.vaultTransactionCreate({
     blockhash,
@@ -127,18 +134,87 @@ export async function agentPropose(
   createTx.sign([fees, agent]);
   const created = await land(createTx);
   if (!created.ok) return created;
-  // sdk 2.1.4 rpc.proposalCreate drops rentPayer; the tx builder keeps it
-  const proposalTx = multisig.transactions.proposalCreate({
-    blockhash: (await connection.getLatestBlockhash()).blockhash,
-    feePayer: fees.publicKey,
-    multisigPda: multisigPda(),
-    transactionIndex,
-    creator: agent.publicKey,
-    rentPayer: fees.publicKey,
-  });
-  proposalTx.sign([fees, agent]);
-  const proposed = await land(proposalTx);
+  const proposed = await openProposal(transactionIndex);
   return { ...proposed, proposal: transactionIndex.toString() };
+}
+
+const proposalExists = async (transactionIndex: bigint) => {
+  const [pPda] = multisig.getProposalPda({ multisigPda: multisigPda(), transactionIndex });
+  return !!(await connection.getAccountInfo(pPda));
+};
+
+/**
+ * Opens the proposal for an already-created vault transaction. Tries three times with a
+ * fresh blockhash, and treats "the proposal is there" as success, so a send that landed
+ * but timed out on our side is not reported as a failure.
+ */
+async function openProposal(transactionIndex: bigint): Promise<ChainResult> {
+  const fees = feesKey();
+  const agent = agentKey();
+  let last: ChainResult = { ok: false, error: "ProposalNotCreated", detail: DETAIL.ProposalNotCreated };
+  for (let i = 0; i < 3; i++) {
+    if (await proposalExists(transactionIndex).catch(() => false)) return { ...last, ok: true, error: undefined, detail: undefined };
+    try {
+      // sdk 2.1.4 rpc.proposalCreate drops rentPayer; the tx builder keeps it
+      const tx = multisig.transactions.proposalCreate({
+        blockhash: (await connection.getLatestBlockhash()).blockhash,
+        feePayer: fees.publicKey,
+        multisigPda: multisigPda(),
+        transactionIndex,
+        creator: agent.publicKey,
+        rentPayer: fees.publicKey,
+      });
+      tx.sign([fees, agent]);
+      last = await land(tx);
+      if (last.ok) return last;
+    } catch (e) {
+      last = { ok: false, error: "ProposalNotCreated", detail: `${DETAIL.ProposalNotCreated} (${e instanceof Error ? e.message : String(e)})` };
+    }
+  }
+  if (await proposalExists(transactionIndex).catch(() => false)) return { ...last, ok: true, error: undefined, detail: undefined };
+  return { ...last, error: "ProposalNotCreated", detail: last.detail ?? DETAIL.ProposalNotCreated };
+}
+
+/** Recent vault transactions with no proposal account: created, then the second step never landed. */
+export async function strandedTransactions() {
+  const ms = await multisig.accounts.Multisig.fromAccountAddress(connection, multisigPda());
+  const last = Number(ms.transactionIndex.toString());
+  const out: { index: number; creator: string; destAta?: string; amount?: number }[] = [];
+  for (let i = last; i > Math.max(0, last - 15); i--) {
+    if (await proposalExists(BigInt(i))) continue;
+    const [tPda] = multisig.getTransactionPda({ multisigPda: multisigPda(), index: BigInt(i) });
+    const t = await multisig.accounts.VaultTransaction.fromAccountAddress(connection, tPda).catch(() => null);
+    if (!t) continue;
+    const ix = t.message.instructions[0];
+    const data = Buffer.from(ix?.data ?? []);
+    out.push({
+      index: i,
+      creator: t.creator.toBase58(),
+      destAta: ix ? t.message.accountKeys[ix.accountIndexes[2]]?.toBase58() : undefined,
+      amount: data[0] === 12 ? Number(data.readBigUInt64LE(1)) : undefined,
+    });
+  }
+  return out;
+}
+
+async function strandedTransaction(destAta: PublicKey, amount: number): Promise<bigint | null> {
+  const me = agentKey().publicKey.toBase58();
+  const hit = (await strandedTransactions()).find(
+    (t) => t.creator === me && t.destAta === destAta.toBase58() && t.amount === amount,
+  );
+  return hit ? BigInt(hit.index) : null;
+}
+
+/** Owner-side resume: open the proposal for every stranded transaction the agent created. */
+export async function resumeStranded() {
+  const me = agentKey().publicKey.toBase58();
+  const out: { index: number; ok: boolean; error?: string; tx?: string }[] = [];
+  for (const t of await strandedTransactions()) {
+    if (t.creator !== me) continue;
+    const r = await openProposal(BigInt(t.index));
+    out.push({ index: t.index, ok: r.ok, error: r.error, tx: r.explorer });
+  }
+  return out;
 }
 
 export async function vaultStatus() {
